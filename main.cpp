@@ -1,8 +1,7 @@
-#include <iostream>
-#include <SFML/Graphics.hpp>
+#include "Simulator.h"
 
 using namespace std;
-using namespace sf;
 
 int main() {
-    
+    return Simulator::start();
+}

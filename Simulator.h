@@ -1,8 +1,6 @@
 #ifndef _SIMULATOR_H
 #define _SIMULATOR_H
 
-#include <cmath>
-
 using namespace std;
 
 class Simulator {
@@ -10,9 +8,11 @@ class Simulator {
     static const float FPS_CAP;
     static const float PI;
     
+    static int start();
+    
     private:
     enum class State {
-        uninitialized, running
+        uninitialized, running, exiting
     };
     
     static State state;

@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS=-c -std=c++11 -Wall
-SOURCES=main.cpp
+SOURCES=main.cpp Body.cpp GraphicsEngine.cpp Simulator.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 LIBS=-lsfml-graphics -lsfml-window -lsfml-system
-PROGRAM=ge3d
+PROGRAM=spaceSim
 
 all: $(PROGRAM)
 

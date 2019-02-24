@@ -4,3 +4,4 @@ Release/
 *.filters
 *.user
 *.o
+.depend
