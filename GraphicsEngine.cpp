@@ -27,13 +27,13 @@ ScreenPoint GraphicsEngine::graphicsTransform(const Vector2u& screenSize, const 
     }
     
     if (point.z >= 0.0) {
-        return ScreenPoint(0.0, 0.0, false);
+        return ScreenPoint(0.0, 0.0, 0.0, false);
     }
     point.z *= tan(90.0f * PI / 360.0f);
     point.x = (point.x / -point.z + 1.0f) * screenSize.x / 2.0f;
     point.y = (point.y / point.z + 1.0f) * screenSize.y / 2.0f;
     
-    return ScreenPoint(point.x, point.y, true);
+    return ScreenPoint(point.x, point.y, point.z, true);
 }
 
 void GraphicsEngine::redraw(RenderWindow& window, const Vector3f& camPosition, const Vector3f& camRotation, const list<Body>& bodies) {

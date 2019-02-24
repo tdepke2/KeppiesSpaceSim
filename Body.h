@@ -9,9 +9,10 @@ using namespace sf;
 class Body {
     public:
     float x, y, z, t, period;
-    float eccentricity, mass, semiMinor, semiMajor, radius;
+    float eccentricity, mass, semiMinor, semiMajor, radius, zScreen;
     Color color;
     
+    Body();
     Body(float t, float eccentricity, float mass, float semiMajor, float radius, const Color& color);
 };
 

@@ -10,11 +10,11 @@ using namespace std;
 using namespace sf;
 
 struct ScreenPoint {
-    float x, y;
+    float x, y, z;
     bool visible;
     
-    ScreenPoint() : x(0), y(0), visible(false) {}
-    ScreenPoint(int x, int y, bool visible) : x(x), y(y), visible(visible) {}
+    ScreenPoint() : x(0), y(0), z(0), visible(false) {}
+    ScreenPoint(float x, float y, float z, bool visible) : x(x), y(y), z(z), visible(visible) {}
 };
 
 class GraphicsEngine {

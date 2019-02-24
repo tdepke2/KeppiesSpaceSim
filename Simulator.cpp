@@ -29,34 +29,21 @@ int Simulator::start() {
         Clock mainClock, fpsClock;    // The mainClock keeps track of elapsed frame time, fpsClock is used to count frames per second.
         int fpsCounter = 0;
         
-        bodies.emplace_back(0, 0, 100, 0.0001, 1, Color::Yellow);
+        bodies.emplace_back(0, 0, 0, 0.0001, 1, Color::Yellow);
         bodies.emplace_back(0, 0.206, 0.33, 0.3871, 0.1, Color(219, 181,111));
-        bodies.emplace_back(0, 0.007, 4.87, 0.72333, 0.1, Color(229, 197, 94));
-        bodies.emplace_back(0, 0.017, 5.97, 1, 0.1, Color(63, 126, 226));
-        bodies.emplace_back(0, 0.093, 0.642, 1.52366, 0.1, Color(186, 125, 93));
-        bodies.emplace_back(0, 0.048, 1898.0, 5.20336, 0.4, Color(186, 165, 139));
-        bodies.emplace_back(0, 0.056, 568.0, 9.53707, 0.1, Color(211, 188, 158));
-        bodies.emplace_back(0, 0.047, 86.8, 19.1913, 0.1, Color(148, 206, 201));
-        bodies.emplace_back(0, 0.009, 102.0, 30.069, 0.1, Color(77, 122, 198));
-        bodies.emplace_back(0, 0.248, 0.0146, 39.48, 0.01, Color(219, 210, 199));
+        bodies.emplace_back(0, 0.007, 4.87, 0.72333, 0.3, Color(229, 197, 94));
+        bodies.emplace_back(0, 0.017, 5.97, 1, 0.3, Color(63, 126, 226));
+        bodies.emplace_back(0, 0.093, 0.642, 1.52366, 0.25, Color(186, 125, 93));
+        bodies.emplace_back(0, 0.048, 1898.0, 5.20336, 0.7, Color(186, 165, 139));
+        bodies.emplace_back(0, 0.056, 568.0, 9.53707, 0.7, Color(211, 188, 158));
+        bodies.emplace_back(0, 0.047, 86.8, 19.1913, 0.35, Color(148, 206, 201));
+        bodies.emplace_back(0, 0.009, 102.0, 30.069, 0.34, Color(77, 122, 198));
+        bodies.emplace_back(0, 0.248, 0.0146, 39.48, 0.08, Color(219, 210, 199));
         bodies.emplace_back(0, 0.8, 25, 3.5, 0.1, Color::Green);
         
         while (state != State::exiting) {
-            window.clear ();
+            window.clear();
             window.setView(view);
-            RectangleShape marker(Vector2f(10.0, 10.0));
-            ScreenPoint markerPoint = graphicsEngine.graphicsTransform(window.getSize(), camRotation, Vector3f(1.0, 0.0, 0.0) - camPosition);
-            marker.setPosition(Vector2f(markerPoint.x, markerPoint.y));
-            marker.setFillColor(Color::Red);
-            window.draw(marker);
-            markerPoint = graphicsEngine.graphicsTransform(window.getSize(), camRotation, Vector3f(0.0, 1.0, 0.0) - camPosition);
-            marker.setPosition(Vector2f(markerPoint.x, markerPoint.y));
-            marker.setFillColor(Color::Green);
-            window.draw(marker);
-            markerPoint = graphicsEngine.graphicsTransform(window.getSize(), camRotation, Vector3f(0.0, 0.0, 1.0) - camPosition);
-            marker.setPosition(Vector2f(markerPoint.x, markerPoint.y));
-            marker.setFillColor(Color::Blue);
-            window.draw(marker);
             graphicsEngine.redraw(window, camPosition, camRotation, bodies);
             window.display();
             
@@ -71,6 +58,7 @@ int Simulator::start() {
                 ++fpsCounter;
             }
             
+            do {
             Event event;
             while (window.pollEvent(event)) {    // Process events.
                 if (event.type == Event::MouseMoved) {
@@ -92,6 +80,14 @@ int Simulator::start() {
                     
                     mousePosition.x = event.mouseMove.x;
                     mousePosition.y = event.mouseMove.y;
+                } else if (event.type == Event::KeyPressed) {
+                    if (event.key.code == Keyboard::P) {
+                        if (state == State::paused) {
+                            state = State::running;
+                        } else {
+                            state = State::paused;
+                        }
+                    }
                 } else if (event.type == Event::Resized) {
                     view.reset(FloatRect(Vector2f(0.0f, 0.0f), Vector2f(window.getSize())));
                 } else if (event.type == Event::Closed) {
@@ -99,6 +95,7 @@ int Simulator::start() {
                     state = State::exiting;
                 }
             }
+            } while (state == State::paused);
             
             // Check for keypress.
             float deltaX = 0.0f, deltaZ = 0.0f;
@@ -130,10 +127,27 @@ int Simulator::start() {
                 if (listIter->t > 2.0f * PI) {
                     listIter->t -= 2.0f * PI;
                 }
-                float lastX = listIter->x, lastY = listIter->y;
                 listIter->x = listIter->semiMajor * cos(listIter->t) - sqrt(pow(listIter->semiMajor, 2) - pow(listIter->semiMinor, 2));
                 listIter->y = listIter->semiMinor * sin(listIter->t);
-                //cout << "v = " << sqrt(pow(lastX - listIter->x, 2.0) + pow(lastY - listIter->y, 2.0)) << endl;
+            }
+            
+            for (auto listIter = bodies.begin(); listIter != bodies.end(); ++listIter){
+                ScreenPoint a = graphicsEngine.graphicsTransform(window.getSize(), camRotation, Vector3f(listIter->x, listIter->y, listIter->z) - camPosition);
+                listIter->zScreen = a.z;
+            }
+            
+            auto outerIter = bodies.begin(), beforeBeginIter = bodies.begin();
+            --beforeBeginIter;
+            for(++outerIter; outerIter != bodies.end(); ++outerIter) {
+                Body target = *outerIter;
+                auto innerIter = outerIter;
+                for(--innerIter; innerIter != beforeBeginIter && innerIter->zScreen > target.zScreen; --innerIter) {
+                    auto tempIter = innerIter;
+                    ++tempIter;
+                    *tempIter = *innerIter;
+                }
+                ++innerIter;
+                *innerIter = target;
             }
         }
     } catch(exception& ex) {    // Catch any exceptions here and handle them as a crash.
